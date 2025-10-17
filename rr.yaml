@@ -30,3 +30,10 @@ temporal:
 logs:
   level: debug
   mode: production
+
+metrics:
+  address: ${METRICS_ADDRESS:-0.0.0.0:2112}
+  prefix: ""
+  type: "summary"
+  default_labels:
+    service: "roadrunner-demo"

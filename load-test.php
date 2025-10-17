@@ -29,7 +29,6 @@ for ($i = 0; $i < $workflowsCount; $i++) {
             WorkflowOptions::new()
                 ->withWorkflowId($workflowId)
                 ->withTaskQueue('default')
-                ->withWorkflowExecutionTimeout(\DateInterval::createFromDateString('5 minutes'))
         );
 
         // Start workflow asynchronously

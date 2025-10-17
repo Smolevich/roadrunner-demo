@@ -45,11 +45,12 @@ services:
       - .:/app
     ports:
       - "8085:8081"
+      - "2112:2112"
     depends_on:
       - temporal
     environment:
       - TEMPORAL_ADDRESS=temporal:7233
-      - TEMPORAL_ROADRUNNER_MAX_WORKERS_COUNT=25
+      - TEMPORAL_ROADRUNNER_MAX_WORKERS_COUNT=100
 
   temporal-admin-tools:
     container_name: temporal-admin-tools
