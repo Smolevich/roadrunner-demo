@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  temporal:
+    container_name: temporal-demo
+    image: temporalio/auto-setup:latest
+    ports:
+      - "7234:7233"
+      - "8234:8233"
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=postgres
+    depends_on:
+      - postgres
+
+  temporal-ui:
+    container_name: temporal-ui-demo
+    image: temporalio/ui:latest
+    ports:
+      - "8084:8080"
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    depends_on:
+      - temporal
+
+  postgres:
+    container_name: postgres-demo
+    image: postgres:13
+    environment:
+      POSTGRES_USER: temporal
+      POSTGRES_PASSWORD: temporal
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  roadrunner:
+    container_name: roadrunner-demo
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - "8085:8081"
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_ROADRUNNER_MAX_WORKERS_COUNT=25
+
+  temporal-admin-tools:
+    container_name: temporal-admin-tools
+    image: temporalio/admin-tools:latest
+    stdin_open: true
+    tty: true
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CLI_ADDRESS=temporal:7233
+    depends_on:
+      - temporal
+
+volumes:
+  postgres-data:
