@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace App;
 
+use DateInterval;
+use Generator;
+use Temporal\Activity\ActivityOptions;
+use Temporal\Common\RetryOptions;
+use Temporal\Workflow;
 use Temporal\Workflow\WorkflowInterface;
 use Temporal\Workflow\WorkflowMethod;
 
@@ -11,16 +16,19 @@ use Temporal\Workflow\WorkflowMethod;
 class DemoWorkflow
 {
     #[WorkflowMethod(name: 'DemoWorkflow')]
-    public function handle(string $workflowId): \Generator
+    public function handle(string $workflowId): Generator
     {
-        $activity = \Temporal\Workflow::newActivityStub(
+        $activity = Workflow::newActivityStub(
             DemoActivityInterface::class,
-            \Temporal\Activity\ActivityOptions::new()
-                ->withStartToCloseTimeout(\DateInterval::createFromDateString('30 seconds'))
+            ActivityOptions::new()
+                ->withStartToCloseTimeout(DateInterval::createFromDateString('10 minutes'))
+                ->withScheduleToCloseTimeout(DateInterval::createFromDateString('1 hour'))
+                ->withRetryOptions(
+                    RetryOptions::new()
+                        ->withMaximumAttempts(5)
+                )
         );
 
-        $result = yield $activity->process($workflowId);
-
-        return $result;
+        return yield $activity->process($workflowId);
     }
 }
